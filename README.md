@@ -1814,13 +1814,14 @@
                 id: Date.now(),
                 type: 'addition',
                 amount: amount,
-                date: elements.date.value,
+                date: new Date().toISOString().split('T')[0], // استخدم تاريخ اليوم الحالي دائماً
                 description: 'إضافة يدوية',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 ownerUid: currentUserUid
             };
             fundBaseCol.add(newFundTx).catch(err => {
-                alert('فشلت العملية.');
+                console.error("Fund add error:", err);
+                alert('فشلت العملية. تحقق من اتصالك بالإنترنت.');
             });
         }).catch(err => {
             if (err && err.message === 'PIN_NOT_SET') {
@@ -1849,13 +1850,14 @@
                 id: Date.now(),
                 type: type,
                 amount: amount,
-                date: elements.date.value,
+                date: new Date().toISOString().split('T')[0], // استخدم تاريخ اليوم الحالي دائماً
                 description: description,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 ownerUid: currentUserUid
             };
             safeBaseCol.add(newSafeTx).catch(err => {
-                alert('فشلت العملية.');
+                console.error("Safe add error:", err);
+                alert('فشلت العملية. تحقق من اتصالك بالإنترنت.');
             });
         }).catch(err => {
             if (err && err.message === 'PIN_NOT_SET') {
