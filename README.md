@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -978,12 +978,9 @@
     let currentFilter = 'all';
     let currentView = 'main';
     let currentUserUid = null;
-    let unsubscribeRecords = null;
-    let unsubscribeFund = null;
-    let unsubscribeSafe = null;
-    let unsubscribePayments = null;
-    let unsubscribeServices = null;
+    let unsubscribers = [];
 
+    // --- Auth ---
     let authMode = 'login';
 
     const authElements = {
@@ -997,18 +994,6 @@
         submitBtn: document.getElementById('authSubmitBtn'),
         msg: document.getElementById('authMsg'),
         userEmail: document.getElementById('userEmail')
-    };
-
-    const settingsElements = {
-        settingsView: document.getElementById('settingsView'),
-        currentPassword: document.getElementById('currentPassword'),
-        newPassword: document.getElementById('newPassword'),
-        newPasswordConfirm: document.getElementById('newPasswordConfirm'),
-        changePasswordMsg: document.getElementById('changePasswordMsg'),
-        currentDeletePin: document.getElementById('currentDeletePin'),
-        deletePin: document.getElementById('deletePin'),
-        deletePinConfirm: document.getElementById('deletePinConfirm'),
-        deletePinMsg: document.getElementById('deletePinMsg')
     };
 
     const pinPromptElements = {
@@ -1086,29 +1071,18 @@
             authElements.authView.classList.add('hidden');
             authElements.appView.classList.remove('hidden');
             authElements.userEmail.textContent = user.email || '';
-
-            ensureAppOwnerAndMaybeMigrate(user.uid).then(() => {
-                attachUserScopedListeners(user.uid);
-            }).catch(e => {
-                console.warn('ensureAppOwnerAndMaybeMigrate failed:', e);
-                attachUserScopedListeners(user.uid);
-            });
+            attachUserScopedListeners(user.uid);
         } else {
             currentUserUid = null;
             authElements.appView.classList.add('hidden');
             authElements.authView.classList.remove('hidden');
-
-            if (unsubscribeRecords) { unsubscribeRecords(); unsubscribeRecords = null; }
-            if (unsubscribeSafe) { unsubscribeSafe(); unsubscribeSafe = null; }
-            if (unsubscribeFund) { unsubscribeFund(); unsubscribeFund = null; }
-            if (unsubscribePayments) { unsubscribePayments(); unsubscribePayments = null; }
-            if (unsubscribeServices) { unsubscribeServices(); unsubscribeServices = null; }
 
             safeTransactions = [];
             fundTransactions = [];
             records = [];
             payments = [];
             savedServices = [];
+            detachUserScopedListeners();
         }
     });
 
@@ -1197,17 +1171,17 @@
         });
     }
 
-    window.logout = function() {
-        auth.signOut().catch(err => {
-            console.warn('logout failed:', err);
-        });
-    }
-
     window.toggleAuthPasswordVisibility = function() {
         const show = document.getElementById('showAuthPassword').checked;
         const type = show ? 'text' : 'password';
         document.getElementById('authPassword').type = type;
         document.getElementById('authPasswordConfirm').type = type;
+    }
+
+    window.logout = function() {
+        auth.signOut().catch(err => {
+            console.warn('logout failed:', err);
+        });
     }
 
     window.openSettings = function() {
@@ -1318,8 +1292,8 @@
     function requireDeletePin() {
         if (!deletePinHash) {
             return Promise.reject(new Error('PIN_NOT_SET'));
-        }
-        pinPromptElements.title.textContent = 'تأكيد الحذف';
+        }        
+        pinPromptElements.title.textContent = 'الرجاء إدخال PIN';
         pinPromptElements.msg.textContent = '';
         pinPromptElements.input.value = '';
         document.getElementById('showPinInput').checked = false;
@@ -1334,7 +1308,7 @@
     window.cancelPinPrompt = function() {
         pinPromptElements.modal.classList.remove('active');
         if (pendingPinPromise) {
-            pendingPinPromise.reject(new Error('CANCELLED'));
+            pendingPinPromise.resolve(false); // Resolve with false on cancel
             pendingPinPromise = null;
         }
     }
@@ -1418,12 +1392,14 @@
     });
 
     function attachUserScopedListeners(uid) {
-        if (unsubscribeSafe) { unsubscribeSafe(); unsubscribeSafe = null; }
-        if (unsubscribeFund) { unsubscribeFund(); unsubscribeFund = null; }
-        if (unsubscribeRecords) { unsubscribeRecords(); unsubscribeRecords = null; }
-        if (unsubscribePayments) { unsubscribePayments(); unsubscribePayments = null; }
-        if (unsubscribeServices) { unsubscribeServices(); unsubscribeServices = null; }
+        detachUserScopedListeners(); // Ensure no old listeners are running
 
+        ensureAppOwnerAndMaybeMigrate(uid).catch(e => {
+            console.warn('ensureAppOwnerAndMaybeMigrate failed:', e);
+        });
+
+        const userMetaCol = db.collection('userMeta').doc(uid);
+        
         // --- المزامنة من Firestore (real-time) ---
         unsubscribeRecords = recordsBaseCol.where('ownerUid', '==', uid).onSnapshot(snapshot => {
             records = snapshot.docs.map(d => {
@@ -1442,6 +1418,7 @@
         }, err => {
             console.warn('Firestore records onSnapshot error:', err);
         });
+        unsubscribers.push(unsubscribeRecords);
 
         unsubscribeFund = fundBaseCol.where('ownerUid', '==', uid).onSnapshot(snapshot => {
             fundTransactions = snapshot.docs.map(d => {
@@ -1451,6 +1428,7 @@
             localStorage.setItem('fundTransactions', JSON.stringify(fundTransactions));
             renderRecords();
         }, err => console.warn('Firestore fund onSnapshot error:', err));
+        unsubscribers.push(unsubscribeFund);
 
         unsubscribeSafe = safeBaseCol.where('ownerUid', '==', uid).onSnapshot(snapshot => {
             safeTransactions = snapshot.docs.map(d => {
@@ -1460,6 +1438,7 @@
             localStorage.setItem('safeTransactions', JSON.stringify(safeTransactions));
             renderRecords();
         }, err => console.warn('Firestore safe onSnapshot error:', err));
+        unsubscribers.push(unsubscribeSafe);
 
         unsubscribePayments = paymentsBaseCol.where('ownerUid', '==', uid).onSnapshot(snapshot => {
             payments = snapshot.docs.map(d => {
@@ -1478,8 +1457,9 @@
         }, err => {
             console.warn('Firestore payments onSnapshot error:', err);
         });
+        unsubscribers.push(unsubscribePayments);
 
-        const paymentTypesCol = db.collection('userMeta').doc(uid).collection('paymentTypes');
+        const paymentTypesCol = userMetaCol.collection('paymentTypes');
         paymentTypesCol.onSnapshot(snapshot => {
             paymentTypes = snapshot.docs.map(d => ({ id: d.id, ...(d.data() || {}) }));
             paymentTypes.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
@@ -1489,7 +1469,7 @@
             console.warn('Firestore paymentTypes onSnapshot error:', err);
         });
 
-        const userServicesDoc = db.collection('userMeta').doc(uid).collection('meta').doc('savedServices');
+        const userServicesDoc = userMetaCol.collection('meta').doc('savedServices');
         unsubscribeServices = userServicesDoc.onSnapshot(doc => {
             if (doc.exists) {
                 savedServices = doc.data().list || [];
@@ -1502,8 +1482,18 @@
         }, err => {
             console.warn('Firestore services onSnapshot error:', err);
         });
+        unsubscribers.push(unsubscribeServices);
 
         loadDeletePinHash(uid).catch(e => console.warn('loadDeletePinHash failed:', e));
+    }
+
+    function detachUserScopedListeners() {
+        unsubscribers.forEach(unsub => {
+            if (typeof unsub === 'function') {
+                unsub();
+            }
+        });
+        unsubscribers = [];
     }
 
     function getPaymentTypeNameFromPayment(p) {
@@ -1802,7 +1792,9 @@
     }
 
     window.addFundPrompt = function() {
-        requireDeletePin().then(() => {
+        requireDeletePin().then(isConfirmed => {
+            if (!isConfirmed) return;
+
             const amountStr = prompt("أدخل المبلغ المراد إضافته للخزنة:");
             if (amountStr === null) return; // cancelled
             const amount = parseFloat(amountStr);
@@ -1814,7 +1806,7 @@
                 id: Date.now(),
                 type: 'addition',
                 amount: amount,
-                date: new Date().toISOString().split('T')[0], // استخدم تاريخ اليوم الحالي دائماً
+                date: new Date().toISOString().split('T')[0],
                 description: 'إضافة يدوية',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 ownerUid: currentUserUid
@@ -1826,15 +1818,14 @@
         }).catch(err => {
             if (err && err.message === 'PIN_NOT_SET') {
                 alert('المرجو تعيين PIN للعمليات من الإعدادات');
-            } else if (err && err.message !== 'CANCELLED') {
-                console.error('Failed to add to fund:', err);
-                alert('خطأ في مزامنة العملية مع السحابة. حاول لاحقاً.');
             }
         });
     }
 
     window.addSafePrompt = function(type) {
-        requireDeletePin().then(() => {
+        requireDeletePin().then(isConfirmed => {
+            if (!isConfirmed) return;
+
             const actionText = type === 'addition' ? 'إضافته' : 'خصمه';
             const amountStr = prompt(`أدخل المبلغ المراد ${actionText} من الصندوق:`);
             if (amountStr === null) return; // cancelled
@@ -1843,18 +1834,8 @@
                 alert("المرجو إدخال مبلغ صحيح.");
                 return;
             }
-
             const description = type === 'addition' ? 'إضافة يدوية للصندوق' : 'خصم يدوي من الصندوق';
-
-            const newSafeTx = {
-                id: Date.now(),
-                type: type,
-                amount: amount,
-                date: new Date().toISOString().split('T')[0], // استخدم تاريخ اليوم الحالي دائماً
-                description: description,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                ownerUid: currentUserUid
-            };
+            const newSafeTx = { id: Date.now(), type: type, amount: amount, date: new Date().toISOString().split('T')[0], description: description, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), ownerUid: currentUserUid };
             safeBaseCol.add(newSafeTx).catch(err => {
                 console.error("Safe add error:", err);
                 alert('فشلت العملية. تحقق من اتصالك بالإنترنت.');
@@ -1862,9 +1843,6 @@
         }).catch(err => {
             if (err && err.message === 'PIN_NOT_SET') {
                 alert('المرجو تعيين PIN للعمليات من الإعدادات');
-            } else if (err && err.message !== 'CANCELLED') {
-                console.error('Failed to add to safe:', err);
-                alert('خطأ في مزامنة العملية مع السحابة. حاول لاحقاً.');
             }
         });
     }
