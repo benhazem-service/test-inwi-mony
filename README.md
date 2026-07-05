@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -339,11 +339,6 @@
         .filter-card.gray.active { background-color: var(--gray); border-color: var(--gray); }
         .filter-card.gray.active h3, .filter-card.gray.active .value, .filter-card.gray.active .sub-info { color: white; }
 
-        /* صندوق (Caisse) */
-        .filter-card.caisse { border-bottom: 4px solid #3949ab; }
-        .filter-card.caisse .value { color: #3949ab; }
-
-
         #paymentView { display: none; }
         #paymentView.active { display: block; }
         #mainView.hidden { display: none; }
@@ -663,36 +658,35 @@
     </div>
 
     <div id="mainView">
-        <div class="date-control">
-            <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <button type="button" onclick="changeDate(-1)" style="border: 1px solid #ddd; background: #fff; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer;">‹</button>
-                <input type="date" id="currentDate">
-                <button type="button" onclick="changeDate(1)" style="border: 1px solid #ddd; background: #fff; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer;">›</button>
+        <div class="box-account-card" style="background: #e8f0fe; border: 2px solid #8ab4f8; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; flex-direction: column; text-align: right;">
+                <h3 style="margin: 0; color: #1a73e8; font-size: 1rem;">الصندوق</h3>
+                <div style="font-size: 1.8rem; font-weight: bold; color: #1a73e8; direction: ltr;" id="val-box-account">0.00</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="promptBox('sub')" style="background: white; color: #1a73e8; border: 1px solid #1a73e8; border-radius: 8px; padding: 0 15px; font-size: 1.5rem; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">-</button>
+                <button type="button" onclick="promptBox('add')" style="background: #1a73e8; color: white; border: none; border-radius: 8px; padding: 0 15px; font-size: 1.5rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">+</button>
             </div>
         </div>
-        <!--
+
+        <div class="inwi-account-card" style="background: var(--orange-light); border: 2px solid var(--orange-border); border-radius: 12px; padding: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="openInwiHistoryPage()">
+            <div style="display: flex; flex-direction: column; text-align: right;">
+                <h3 style="margin: 0; color: var(--orange); font-size: 1rem;">حساب inwi</h3>
+                <div style="font-size: 1.8rem; font-weight: bold; color: var(--orange); direction: ltr;" id="val-inwi-account">0.00</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="promptInwiEdit(); event.stopPropagation();" style="background: white; color: var(--orange); border: 1px solid var(--orange); border-radius: 8px; padding: 0 10px; font-size: 0.9rem; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">تعديل</button>
+                <button type="button" onclick="promptInwiAdd(); event.stopPropagation();" style="background: var(--orange); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.5rem; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">+</button>
+            </div>
+        </div>
         <div class="date-control">
             <input type="date" id="currentDate">
         </div>
 
-        <!-- الخزنة والصندوق -->
-        <div class="filters-container" style="grid-template-columns: 1fr 1fr; margin-bottom: 15px;">
-            <div class="filter-card" onclick="openFundPage()" id="fund-card" style="border-bottom: 4px solid #9c27b0; position: relative; cursor: pointer;">
-                <h3>الخزنة</h3>
-                <div class="value" id="val-fund" style="color: #9c27b0;">0.00</div>
-                <button id="add-to-fund-btn" onclick="event.stopPropagation(); addFundPrompt()" style="position: absolute; top: 5px; left: 5px; background: #9c27b0; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
-                <div class="sub-info" id="count-fund">الرصيد الحالي</div>
-            </div>
-            <div class="filter-card caisse" onclick="openSafePage()" id="safe-card" style="position: relative; cursor: pointer;">
-                <h3>الصندوق</h3>
-                <div class="value" id="val-safe">0.00</div>
-                <button onclick="event.stopPropagation(); addSafePrompt('addition')" style="position: absolute; top: 5px; left: 5px; background: #3949ab; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
-                <button onclick="event.stopPropagation(); addSafePrompt('deduction')" style="position: absolute; top: 5px; right: 5px; background: #c62828; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;">-</button>
-                <div class="sub-info" id="count-safe">الرصيد الحالي</div>
-            </div>
-        </div>
         <!-- 2. أزرار الفلترة والتفاصيل (Filters) -->
         <div class="filters-container">
+            
+            <!-- الكل (يعرض المبلغ الإجمالي لليوم) -->
             <div class="filter-card blue active" onclick="setFilter('all')" id="filter-all">
                 <h3>المجموع (اليوم)</h3>
                 <div class="value" id="val-all">0.00</div>
@@ -749,57 +743,6 @@
         <div class="records-list" id="recordsList"></div>
     </div>
 
-    <div id="fundView" class="hidden">
-        <div class="payment-page">
-            <div class="payment-page-header">
-                <button class="back-btn" type="button" onclick="closeFundPage()">رجوع</button>
-                <div class="title" style="color: #9c27b0;">سجل الخزنة</div>
-                <div style="min-width: 1px;"></div>
-            </div>
-
-            <div class="date-control" style="margin-bottom: 15px;">
-                 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-                    <button type="button" onclick="changeDate(-1, 'fund')" style="border: 1px solid #ddd; background: #fff; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer;">‹</button>
-                    <input type="date" id="fundDate">
-                    <button type="button" onclick="changeDate(1, 'fund')" style="border: 1px solid #ddd; background: #fff; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer;">›</button>
-                </div>
-            </div>
-
-            <div style="text-align:center; margin-bottom: 12px;">
-                <div style="font-size: 0.9rem; color:#666;">رصيد الخزنة الحالي</div>
-                <div style="font-size: 1.8rem; font-weight:bold; color: #9c27b0; direction:ltr;" id="val-fund-page">0.00</div>
-            </div>
-
-            <div class="payment-history" id="fundHistory" style="max-height: 400px;"></div>
-        </div>
-    </div>
-
-    <div id="safeView" class="hidden">
-        <div class="payment-page">
-            <div class="payment-page-header">
-                <button class="back-btn" type="button" onclick="closeSafePage()">رجوع</button>
-                <div class="title" style="color: #3949ab;">سجل الصندوق</div>
-                <div style="min-width: 1px;"></div>
-            </div>
-
-            <div class="date-control" style="margin-bottom: 15px;">
-                 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-                    <button type="button" onclick="changeDate(-1, 'safe')" style="border: 1px solid #ddd; background: #fff; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer;">‹</button>
-                    <input type="date" id="safeDate">
-                    <button type="button" onclick="changeDate(1, 'safe')" style="border: 1px solid #ddd; background: #fff; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer;">›</button>
-                </div>
-            </div>
-
-            <div style="text-align:center; margin-bottom: 12px;">
-                <div style="font-size: 0.9rem; color:#666;">رصيد الصندوق الحالي</div>
-                <div style="font-size: 1.8rem; font-weight:bold; color: #3949ab; direction:ltr;" id="val-safe-page">0.00</div>
-            </div>
-
-            <div class="payment-history" id="safeHistory" style="max-height: 400px;"></div>
-        </div>
-    </div>
-
-
     <div id="paymentView">
         <div class="payment-page">
             <div class="payment-page-header">
@@ -813,7 +756,7 @@
             </div>
 
             <div style="text-align:center; margin-bottom: 12px;">
-                <div style="font-size: 0.9rem; color:#666;">المجموع (اليوم)</div>
+                <div style="font-size: 0.9rem; color:#666;">المجموع</div>
                 <div style="font-size: 1.8rem; font-weight:bold; color: var(--gray); direction:ltr;" id="val-payment-page">0.00</div>
             </div>
 
@@ -828,6 +771,17 @@
             </div>
 
             <div class="payment-history" id="paymentHistory"></div>
+        </div>
+    </div>
+
+    <div id="inwiHistoryView" style="display: none;">
+        <div class="payment-page">
+            <div class="payment-page-header">
+                <button class="back-btn" type="button" onclick="closeInwiHistoryPage()">رجوع</button>
+                <div class="title">سجل حساب inwi</div>
+                <div style="min-width: 1px;"></div>
+            </div>
+            <div class="payment-history" id="inwiHistoryList" style="max-height: 400px; overflow: auto;"></div>
         </div>
     </div>
 
@@ -901,6 +855,69 @@
 
 </div>
 
+<div class="modal-overlay" id="inwiModal">
+    <div class="modal">
+        <div class="modal-title">إضافة رصيد inwi</div>
+        <div class="form-row" style="margin-bottom: 10px;">
+            <input type="number" id="inwiAmountInput" placeholder="المبلغ المراد إضافته" step="0.01">
+        </div>
+        <div class="form-row" style="margin-bottom: 10px;">
+            <input type="password" id="inwiPinInput" placeholder="الرقم السري (PIN)" style="direction:ltr;">
+        </div>
+        <label class="checkbox-wrapper" style="justify-content:center;">
+            <input type="checkbox" id="showInwiPin" onclick="toggleInwiPinVisibility()">
+            <span>إظهار PIN</span>
+        </label>
+        <div class="modal-actions">
+            <button type="button" onclick="closeInwiModal()">إلغاء</button>
+            <button class="primary" type="button" onclick="confirmInwiAdd()">إضافة</button>
+        </div>
+        <div class="modal-msg" id="inwiModalMsg"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="inwiEditModal">
+    <div class="modal">
+        <div class="modal-title">تعديل رصيد inwi</div>
+        <div class="form-row" style="margin-bottom: 10px;">
+            <input type="number" id="inwiEditAmountInput" placeholder="الرصيد الجديد" step="0.01">
+        </div>
+        <div class="form-row" style="margin-bottom: 10px;">
+            <input type="password" id="inwiEditPinInput" placeholder="الرقم السري (PIN)" style="direction:ltr;">
+        </div>
+        <label class="checkbox-wrapper" style="justify-content:center;">
+            <input type="checkbox" id="showInwiEditPin" onclick="toggleInwiEditPinVisibility()">
+            <span>إظهار PIN</span>
+        </label>
+        <div class="modal-actions">
+            <button type="button" onclick="closeInwiEditModal()">إلغاء</button>
+            <button class="primary" type="button" onclick="confirmInwiEdit()">تعديل</button>
+        </div>
+        <div class="modal-msg" id="inwiEditModalMsg"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="boxModal">
+    <div class="modal">
+        <div class="modal-title" id="boxModalTitle">عملية الصندوق</div>
+        <div class="form-row" style="margin-bottom: 10px;">
+            <input type="number" id="boxAmountInput" placeholder="المبلغ" step="0.01">
+        </div>
+        <div class="form-row" style="margin-bottom: 10px;">
+            <input type="password" id="boxPinInput" placeholder="الرقم السري (PIN)" style="direction:ltr;">
+        </div>
+        <label class="checkbox-wrapper" style="justify-content:center;">
+            <input type="checkbox" id="showBoxPin" onclick="toggleBoxPinVisibility()">
+            <span>إظهار PIN</span>
+        </label>
+        <div class="modal-actions">
+            <button type="button" onclick="closeBoxModal()">إلغاء</button>
+            <button class="primary" type="button" onclick="confirmBox()">تأكيد</button>
+        </div>
+        <div class="modal-msg" id="boxModalMsg"></div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="pinModal">
     <div class="modal">
         <div class="modal-title" id="pinModalTitle">تأكيد الحذف</div>
@@ -960,8 +977,6 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
     const recordsBaseCol = db.collection('invoiceRecords');
-    const fundBaseCol = db.collection('fundTransactions');
-    const safeBaseCol = db.collection('safeTransactions');
     const paymentsBaseCol = db.collection('paymentRecords');
     const appOwnerDoc = db.collection('meta').doc('appOwner');
     const legacyServicesDoc = db.collection('meta').doc('savedServices');
@@ -971,16 +986,18 @@
 
     // ابدأ بعرض من localStorage كنسخة فورية
     let records = JSON.parse(localStorage.getItem('invoiceRecords')) || [];
-    let fundTransactions = JSON.parse(localStorage.getItem('fundTransactions')) || [];
-    let safeTransactions = JSON.parse(localStorage.getItem('safeTransactions')) || [];
     let payments = JSON.parse(localStorage.getItem('paymentRecords')) || [];
     let savedServices = JSON.parse(localStorage.getItem('savedServices')) || [];
     let currentFilter = 'all';
     let currentView = 'main';
     let currentUserUid = null;
-    let unsubscribers = [];
 
-    // --- Auth ---
+    let unsubscribeRecords = null;
+    let unsubscribePayments = null;
+    let unsubscribeServices = null;
+    let unsubscribeInwiAdditions = null;
+    let inwiAdditions = [];
+
     let authMode = 'login';
 
     const authElements = {
@@ -996,11 +1013,51 @@
         userEmail: document.getElementById('userEmail')
     };
 
+    const settingsElements = {
+        settingsView: document.getElementById('settingsView'),
+        currentPassword: document.getElementById('currentPassword'),
+        newPassword: document.getElementById('newPassword'),
+        newPasswordConfirm: document.getElementById('newPasswordConfirm'),
+        changePasswordMsg: document.getElementById('changePasswordMsg'),
+        currentDeletePin: document.getElementById('currentDeletePin'),
+        deletePin: document.getElementById('deletePin'),
+        deletePinConfirm: document.getElementById('deletePinConfirm'),
+        deletePinMsg: document.getElementById('deletePinMsg')
+    };
+
     const pinPromptElements = {
         modal: document.getElementById('pinModal'),
         title: document.getElementById('pinModalTitle'),
         input: document.getElementById('pinInput'),
         msg: document.getElementById('pinModalMsg')
+    };
+
+    const inwiElements = {
+        modal: document.getElementById('inwiModal'),
+        amount: document.getElementById('inwiAmountInput'),
+        pin: document.getElementById('inwiPinInput'),
+        msg: document.getElementById('inwiModalMsg'),
+        valDisplay: document.getElementById('val-inwi-account')
+    };
+    
+    const inwiEditElements = {
+        modal: document.getElementById('inwiEditModal'),
+        amount: document.getElementById('inwiEditAmountInput'),
+        pin: document.getElementById('inwiEditPinInput'),
+        msg: document.getElementById('inwiEditModalMsg')
+    };
+    let inwiBalance = 0;
+
+    let boxBalance = 0;
+    let boxActionType = 'add';
+    
+    const boxElements = {
+        modal: document.getElementById('boxModal'),
+        title: document.getElementById('boxModalTitle'),
+        amount: document.getElementById('boxAmountInput'),
+        pin: document.getElementById('boxPinInput'),
+        msg: document.getElementById('boxModalMsg'),
+        valDisplay: document.getElementById('val-box-account')
     };
 
     let deletePinHash = null;
@@ -1014,16 +1071,6 @@
         check: document.getElementById('initialCheck'),
         date: document.getElementById('currentDate'),
         list: document.getElementById('recordsList'),
-        fundView: document.getElementById('fundView'),
-        fundDate: document.getElementById('fundDate'),
-        valFund: document.getElementById('val-fund'),
-        valFundPage: document.getElementById('val-fund-page'),
-        fundHistory: document.getElementById('fundHistory'),
-        safeView: document.getElementById('safeView'),
-        safeDate: document.getElementById('safeDate'),
-        valSafe: document.getElementById('val-safe'),
-        valSafePage: document.getElementById('val-safe-page'),
-        safeHistory: document.getElementById('safeHistory'),
         datalist: document.getElementById('servicesList'),
         
         // بطاقات الفلترة
@@ -1048,13 +1095,13 @@
         newPaymentTypeName: document.getElementById('newPaymentTypeName'),
         paymentView: document.getElementById('paymentView'),
         mainView: document.getElementById('mainView'),
+        valPaymentPage: document.getElementById('val-payment-page'),
         paymentDate: document.getElementById('paymentDate'),
-        valPaymentPage: document.getElementById('val-payment-page')
+        inwiHistoryView: document.getElementById('inwiHistoryView'),
+        inwiHistoryList: document.getElementById('inwiHistoryList')
     };
 
     elements.date.valueAsDate = new Date();
-    elements.fundDate.value = elements.date.value;
-    elements.safeDate.value = elements.date.value;
     elements.paymentDate.value = elements.date.value;
 
     // تذكّر البريد فقط (بدون كلمة السر)
@@ -1071,18 +1118,27 @@
             authElements.authView.classList.add('hidden');
             authElements.appView.classList.remove('hidden');
             authElements.userEmail.textContent = user.email || '';
-            attachUserScopedListeners(user.uid);
+
+            ensureAppOwnerAndMaybeMigrate(user.uid).then(() => {
+                attachUserScopedListeners(user.uid);
+            }).catch(e => {
+                console.warn('ensureAppOwnerAndMaybeMigrate failed:', e);
+                attachUserScopedListeners(user.uid);
+            });
         } else {
             currentUserUid = null;
             authElements.appView.classList.add('hidden');
             authElements.authView.classList.remove('hidden');
 
-            safeTransactions = [];
-            fundTransactions = [];
+            if (unsubscribeRecords) { unsubscribeRecords(); unsubscribeRecords = null; }
+            if (unsubscribePayments) { unsubscribePayments(); unsubscribePayments = null; }
+            if (unsubscribeServices) { unsubscribeServices(); unsubscribeServices = null; }
+            if (unsubscribeInwiAdditions) { unsubscribeInwiAdditions(); unsubscribeInwiAdditions = null; }
+
             records = [];
             payments = [];
             savedServices = [];
-            detachUserScopedListeners();
+            inwiAdditions = [];
         }
     });
 
@@ -1171,6 +1227,12 @@
         });
     }
 
+    window.logout = function() {
+        auth.signOut().catch(err => {
+            console.warn('logout failed:', err);
+        });
+    }
+
     window.toggleAuthPasswordVisibility = function() {
         const show = document.getElementById('showAuthPassword').checked;
         const type = show ? 'text' : 'password';
@@ -1178,16 +1240,11 @@
         document.getElementById('authPasswordConfirm').type = type;
     }
 
-    window.logout = function() {
-        auth.signOut().catch(err => {
-            console.warn('logout failed:', err);
-        });
-    }
-
     window.openSettings = function() {
         currentView = 'settings';
         elements.mainView.classList.add('hidden');
         elements.paymentView.classList.remove('active');
+        if (elements.inwiHistoryView) elements.inwiHistoryView.style.display = 'none';
         settingsElements.settingsView.classList.add('active');
         settingsElements.changePasswordMsg.textContent = '';
         settingsElements.deletePinMsg.textContent = '';
@@ -1197,6 +1254,7 @@
         currentView = 'main';
         settingsElements.settingsView.classList.remove('active');
         elements.paymentView.classList.remove('active');
+        if (elements.inwiHistoryView) elements.inwiHistoryView.style.display = 'none';
         elements.mainView.classList.remove('hidden');
         renderRecords();
     }
@@ -1292,8 +1350,8 @@
     function requireDeletePin() {
         if (!deletePinHash) {
             return Promise.reject(new Error('PIN_NOT_SET'));
-        }        
-        pinPromptElements.title.textContent = 'الرجاء إدخال PIN';
+        }
+        pinPromptElements.title.textContent = 'تأكيد الحذف';
         pinPromptElements.msg.textContent = '';
         pinPromptElements.input.value = '';
         document.getElementById('showPinInput').checked = false;
@@ -1308,7 +1366,7 @@
     window.cancelPinPrompt = function() {
         pinPromptElements.modal.classList.remove('active');
         if (pendingPinPromise) {
-            pendingPinPromise.resolve(false); // Resolve with false on cancel
+            pendingPinPromise.reject(new Error('CANCELLED'));
             pendingPinPromise = null;
         }
     }
@@ -1331,6 +1389,193 @@
             }
         });
     }
+
+    window.promptInwiAdd = function() {
+        if (!deletePinHash) {
+            alert('المرجو تعيين الرقم السري (PIN) من الإعدادات أولاً');
+            return;
+        }
+        inwiElements.amount.value = '';
+        inwiElements.pin.value = '';
+        inwiElements.msg.textContent = '';
+        document.getElementById('showInwiPin').checked = false;
+        inwiElements.pin.type = 'password';
+        inwiElements.modal.classList.add('active');
+    };
+
+    window.closeInwiModal = function() {
+        inwiElements.modal.classList.remove('active');
+    };
+
+    window.toggleInwiPinVisibility = function() {
+        const show = document.getElementById('showInwiPin').checked;
+        inwiElements.pin.type = show ? 'text' : 'password';
+    };
+
+    window.confirmInwiAdd = function() {
+        const amount = parseFloat(inwiElements.amount.value);
+        const pin = inwiElements.pin.value.trim();
+
+        if (isNaN(amount) || amount <= 0) {
+            inwiElements.msg.textContent = 'المرجو إدخال مبلغ صحيح';
+            return;
+        }
+        if (!pin) {
+            inwiElements.msg.textContent = 'المرجو إدخال الرقم السري';
+            return;
+        }
+
+        sha256Hex(pin).then(hash => {
+            if (hash !== deletePinHash) {
+                inwiElements.msg.textContent = 'الرقم السري غير صحيح';
+                return;
+            }
+            inwiElements.msg.textContent = 'جاري الإضافة...';
+            
+            const docRef = db.collection('userMeta').doc(currentUserUid).collection('meta').doc('inwiAccount');
+            
+            return db.runTransaction(transaction => {
+                return transaction.get(docRef).then(doc => {
+                    let newBalance = amount;
+                    if (doc.exists) {
+                        newBalance = (doc.data().balance || 0) + amount;
+                    }
+                    transaction.set(docRef, { balance: newBalance }, { merge: true });
+                });
+            }).then(() => {
+                const now = new Date();
+                const hh = String(now.getHours()).padStart(2, '0');
+                const mm = String(now.getMinutes()).padStart(2, '0');
+                return db.collection('userMeta').doc(currentUserUid).collection('inwiAdditions').add({
+                    id: Date.now(),
+                    amount: amount,
+                    date: elements.date.value || now.toISOString().split('T')[0],
+                    time: `${hh}:${mm}`
+                });
+            }).then(() => {
+                inwiElements.modal.classList.remove('active');
+            }).catch(err => {
+                console.error(err);
+                inwiElements.msg.textContent = 'حدث خطأ أثناء الإضافة';
+            });
+        });
+    };
+
+    window.promptInwiEdit = function() {
+        if (!deletePinHash) {
+            alert('المرجو تعيين الرقم السري (PIN) من الإعدادات أولاً');
+            return;
+        }
+        inwiEditElements.amount.value = inwiBalance;
+        inwiEditElements.pin.value = '';
+        inwiEditElements.msg.textContent = '';
+        document.getElementById('showInwiEditPin').checked = false;
+        inwiEditElements.pin.type = 'password';
+        inwiEditElements.modal.classList.add('active');
+    };
+
+    window.closeInwiEditModal = function() {
+        inwiEditElements.modal.classList.remove('active');
+    };
+
+    window.toggleInwiEditPinVisibility = function() {
+        const show = document.getElementById('showInwiEditPin').checked;
+        inwiEditElements.pin.type = show ? 'text' : 'password';
+    };
+
+    window.confirmInwiEdit = function() {
+        const amount = parseFloat(inwiEditElements.amount.value);
+        const pin = inwiEditElements.pin.value.trim();
+
+        if (isNaN(amount) || amount < 0) {
+            inwiEditElements.msg.textContent = 'المرجو إدخال مبلغ صحيح';
+            return;
+        }
+        if (!pin) {
+            inwiEditElements.msg.textContent = 'المرجو إدخال الرقم السري';
+            return;
+        }
+
+        sha256Hex(pin).then(hash => {
+            if (hash !== deletePinHash) {
+                inwiEditElements.msg.textContent = 'الرقم السري غير صحيح';
+                return;
+            }
+            inwiEditElements.msg.textContent = 'جاري التعديل...';
+            
+            const docRef = db.collection('userMeta').doc(currentUserUid).collection('meta').doc('inwiAccount');
+            
+            return docRef.set({ balance: amount }, { merge: true }).then(() => {
+                inwiEditElements.modal.classList.remove('active');
+            }).catch(err => {
+                console.error(err);
+                inwiEditElements.msg.textContent = 'حدث خطأ أثناء التعديل';
+            });
+        });
+    };
+
+    window.promptBox = function(type) {
+        if (!deletePinHash) {
+            alert('المرجو تعيين الرقم السري (PIN) من الإعدادات أولاً');
+            return;
+        }
+        boxActionType = type;
+        boxElements.title.textContent = type === 'add' ? 'إضافة للصندوق' : 'نقصان من الصندوق';
+        boxElements.amount.value = '';
+        boxElements.pin.value = '';
+        boxElements.msg.textContent = '';
+        document.getElementById('showBoxPin').checked = false;
+        boxElements.pin.type = 'password';
+        boxElements.modal.classList.add('active');
+    };
+
+    window.closeBoxModal = function() {
+        boxElements.modal.classList.remove('active');
+    };
+
+    window.toggleBoxPinVisibility = function() {
+        const show = document.getElementById('showBoxPin').checked;
+        boxElements.pin.type = show ? 'text' : 'password';
+    };
+
+    window.confirmBox = function() {
+        const amount = parseFloat(boxElements.amount.value);
+        const pin = boxElements.pin.value.trim();
+
+        if (isNaN(amount) || amount <= 0) {
+            boxElements.msg.textContent = 'المرجو إدخال مبلغ صحيح';
+            return;
+        }
+        if (!pin) {
+            boxElements.msg.textContent = 'المرجو إدخال الرقم السري';
+            return;
+        }
+
+        sha256Hex(pin).then(hash => {
+            if (hash !== deletePinHash) {
+                boxElements.msg.textContent = 'الرقم السري غير صحيح';
+                return;
+            }
+            boxElements.msg.textContent = 'جاري التنفيذ...';
+            
+            const docRef = db.collection('userMeta').doc(currentUserUid).collection('meta').doc('boxAccount');
+            
+            return db.runTransaction(transaction => {
+                return transaction.get(docRef).then(doc => {
+                    let newBalance = boxActionType === 'add' ? amount : -amount;
+                    if (doc.exists) {
+                        newBalance = (doc.data().balance || 0) + (boxActionType === 'add' ? amount : -amount);
+                    }
+                    transaction.set(docRef, { balance: newBalance }, { merge: true });
+                });
+            }).then(() => {
+                boxElements.modal.classList.remove('active');
+            }).catch(err => {
+                console.error(err);
+                boxElements.msg.textContent = 'حدث خطأ أثناء التنفيذ';
+            });
+        });
+    };
 
     window.changePassword = function() {
         const cur = settingsElements.currentPassword.value;
@@ -1370,36 +1615,18 @@
 
     document.getElementById('addBtn').addEventListener('click', addRecord);
     document.getElementById('paymentAddBtn').addEventListener('click', addPayment);
-    elements.date.addEventListener('change', () => {
-        elements.safeDate.value = elements.date.value;
-        elements.fundDate.value = elements.date.value;
-        elements.paymentDate.value = elements.date.value;
-        renderRecords();
-    });
-    elements.fundDate.addEventListener('change', () => {
-        elements.date.value = elements.fundDate.value;
-        elements.safeDate.value = elements.date.value;
-        renderRecords();
-    });
-    elements.safeDate.addEventListener('change', () => {
-        elements.date.value = elements.safeDate.value;
-        elements.fundDate.value = elements.date.value;
-        renderRecords();
-    });
+    elements.date.addEventListener('change', renderRecords);
     elements.paymentDate.addEventListener('change', function() {
         elements.date.value = elements.paymentDate.value;
         renderRecords();
     });
 
     function attachUserScopedListeners(uid) {
-        detachUserScopedListeners(); // Ensure no old listeners are running
+        if (unsubscribeRecords) { unsubscribeRecords(); unsubscribeRecords = null; }
+        if (unsubscribePayments) { unsubscribePayments(); unsubscribePayments = null; }
+        if (unsubscribeServices) { unsubscribeServices(); unsubscribeServices = null; }
+        if (unsubscribeInwiAdditions) { unsubscribeInwiAdditions(); unsubscribeInwiAdditions = null; }
 
-        ensureAppOwnerAndMaybeMigrate(uid).catch(e => {
-            console.warn('ensureAppOwnerAndMaybeMigrate failed:', e);
-        });
-
-        const userMetaCol = db.collection('userMeta').doc(uid);
-        
         // --- المزامنة من Firestore (real-time) ---
         unsubscribeRecords = recordsBaseCol.where('ownerUid', '==', uid).onSnapshot(snapshot => {
             records = snapshot.docs.map(d => {
@@ -1418,27 +1645,6 @@
         }, err => {
             console.warn('Firestore records onSnapshot error:', err);
         });
-        unsubscribers.push(unsubscribeRecords);
-
-        unsubscribeFund = fundBaseCol.where('ownerUid', '==', uid).onSnapshot(snapshot => {
-            fundTransactions = snapshot.docs.map(d => {
-                const data = d.data() || {};
-                return { ...data, docId: d.id };
-            });
-            localStorage.setItem('fundTransactions', JSON.stringify(fundTransactions));
-            renderRecords();
-        }, err => console.warn('Firestore fund onSnapshot error:', err));
-        unsubscribers.push(unsubscribeFund);
-
-        unsubscribeSafe = safeBaseCol.where('ownerUid', '==', uid).onSnapshot(snapshot => {
-            safeTransactions = snapshot.docs.map(d => {
-                const data = d.data() || {};
-                return { ...data, docId: d.id };
-            });
-            localStorage.setItem('safeTransactions', JSON.stringify(safeTransactions));
-            renderRecords();
-        }, err => console.warn('Firestore safe onSnapshot error:', err));
-        unsubscribers.push(unsubscribeSafe);
 
         unsubscribePayments = paymentsBaseCol.where('ownerUid', '==', uid).onSnapshot(snapshot => {
             payments = snapshot.docs.map(d => {
@@ -1457,9 +1663,8 @@
         }, err => {
             console.warn('Firestore payments onSnapshot error:', err);
         });
-        unsubscribers.push(unsubscribePayments);
 
-        const paymentTypesCol = userMetaCol.collection('paymentTypes');
+        const paymentTypesCol = db.collection('userMeta').doc(uid).collection('paymentTypes');
         paymentTypesCol.onSnapshot(snapshot => {
             paymentTypes = snapshot.docs.map(d => ({ id: d.id, ...(d.data() || {}) }));
             paymentTypes.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
@@ -1469,7 +1674,40 @@
             console.warn('Firestore paymentTypes onSnapshot error:', err);
         });
 
-        const userServicesDoc = userMetaCol.collection('meta').doc('savedServices');
+        unsubscribeInwiAdditions = db.collection('userMeta').doc(uid).collection('inwiAdditions').onSnapshot(snapshot => {
+            inwiAdditions = snapshot.docs.map(d => ({ docId: d.id, ...(d.data() || {}) }));
+            if (currentView === 'inwiHistory' || currentView === 'main') {
+                renderRecords();
+            }
+        }, err => console.warn('inwiAdditions onSnapshot error:', err));
+
+        const inwiAccountDoc = db.collection('userMeta').doc(uid).collection('meta').doc('inwiAccount');
+        inwiAccountDoc.onSnapshot(doc => {
+            if (doc.exists) {
+                inwiBalance = doc.data().balance || 0;
+            } else {
+                inwiBalance = 0;
+            }
+            if (inwiElements.valDisplay) {
+                inwiElements.valDisplay.textContent = inwiBalance.toFixed(2);
+            }
+        }, err => {
+            console.warn('Firestore inwi onSnapshot error:', err);
+        });
+
+        const boxAccountDoc = db.collection('userMeta').doc(uid).collection('meta').doc('boxAccount');
+        boxAccountDoc.onSnapshot(doc => {
+            if (doc.exists) {
+                boxBalance = doc.data().balance || 0;
+            } else {
+                boxBalance = 0;
+            }
+            if (boxElements.valDisplay) {
+                boxElements.valDisplay.textContent = boxBalance.toFixed(2);
+            }
+        }, err => console.warn('boxAccount onSnapshot error:', err));
+
+        const userServicesDoc = db.collection('userMeta').doc(uid).collection('meta').doc('savedServices');
         unsubscribeServices = userServicesDoc.onSnapshot(doc => {
             if (doc.exists) {
                 savedServices = doc.data().list || [];
@@ -1482,18 +1720,8 @@
         }, err => {
             console.warn('Firestore services onSnapshot error:', err);
         });
-        unsubscribers.push(unsubscribeServices);
 
         loadDeletePinHash(uid).catch(e => console.warn('loadDeletePinHash failed:', e));
-    }
-
-    function detachUserScopedListeners() {
-        unsubscribers.forEach(unsub => {
-            if (typeof unsub === 'function') {
-                unsub();
-            }
-        });
-        unsubscribers = [];
     }
 
     function getPaymentTypeNameFromPayment(p) {
@@ -1623,26 +1851,6 @@
         return Promise.all(tasks).then(() => undefined);
     }
 
-    window.changeDate = function(days, fromPageId = null) {
-        let targetDateElem;
-        if (fromPageId === 'fund') {
-            targetDateElem = elements.fundDate;
-        } else if (fromPageId === 'safe') {
-            targetDateElem = elements.safeDate;
-        } else if (fromPageId === 'payment') {
-            targetDateElem = elements.paymentDate;
-        } else {
-            targetDateElem = elements.date;
-        }
-        const d = new Date(targetDateElem.value);
-        d.setDate(d.getDate() + days);
-        targetDateElem.valueAsDate = d;
-        // trigger change event
-        const event = new Event('change');
-        targetDateElem.dispatchEvent(event);
-    }
-
-
     // utils
     function findRecordById(id) {
         return records.find(r => r.id === id);
@@ -1666,8 +1874,10 @@
 
         if (currentView === 'payment') {
             closePaymentPage();
-            closeSafePage();
-            closeFundPage();
+        }
+
+        if (currentView === 'inwiHistory') {
+            closeInwiHistoryPage();
         }
 
         if (currentView === 'settings') {
@@ -1681,30 +1891,11 @@
         renderRecords();
     }
 
-    window.openFundPage = function() {
-        currentView = 'fund';
-        elements.mainView.classList.add('hidden');
-        elements.safeView.classList.add('hidden');
-        elements.paymentView.classList.remove('active');
-        settingsElements.settingsView.classList.remove('active');
-        elements.fundView.classList.remove('hidden');
-        elements.fundDate.value = elements.date.value;
-        renderRecords();
-    }
-
-    window.closeFundPage = function() {
-        currentView = 'main';
-        elements.safeView.classList.add('hidden');
-        elements.fundView.classList.add('hidden');
-        elements.mainView.classList.remove('hidden');
-    }
-
     window.openPaymentPage = function() {
         currentView = 'payment';
         elements.mainView.classList.add('hidden');
-        elements.safeView.classList.add('hidden');
-        elements.fundView.classList.add('hidden');
         settingsElements.settingsView.classList.remove('active');
+        if (elements.inwiHistoryView) elements.inwiHistoryView.style.display = 'none';
         elements.paymentView.classList.add('active');
         elements.paymentDate.value = elements.date.value;
         renderRecords();
@@ -1713,28 +1904,26 @@
     window.closePaymentPage = function() {
         currentView = 'main';
         elements.paymentView.classList.remove('active');
-        elements.safeView.classList.add('hidden');
-        elements.fundView.classList.add('hidden');
         settingsElements.settingsView.classList.remove('active');
+        if (elements.inwiHistoryView) elements.inwiHistoryView.style.display = 'none';
         elements.mainView.classList.remove('hidden');
         renderRecords();
     }
 
-    window.openSafePage = function() {
-        currentView = 'safe';
+    window.openInwiHistoryPage = function() {
+        currentView = 'inwiHistory';
         elements.mainView.classList.add('hidden');
-        elements.fundView.classList.add('hidden');
-        elements.paymentView.classList.remove('active');
         settingsElements.settingsView.classList.remove('active');
-        elements.safeView.classList.remove('hidden');
-        elements.safeDate.value = elements.date.value;
+        elements.paymentView.classList.remove('active');
+        if (elements.inwiHistoryView) elements.inwiHistoryView.style.display = 'block';
         renderRecords();
     }
 
-    window.closeSafePage = function() {
+    window.closeInwiHistoryPage = function() {
         currentView = 'main';
-        elements.safeView.classList.add('hidden');
+        if (elements.inwiHistoryView) elements.inwiHistoryView.style.display = 'none';
         elements.mainView.classList.remove('hidden');
+        renderRecords();
     }
 
     function addRecord() {
@@ -1760,90 +1949,46 @@
             , ownerUid: currentUserUid
          };
 
-        const fundTransaction = {
-            id: newRecord.id + 1, // avoid same timestamp
-            type: 'deduction',
-            amount: amount,
-            date: date,
-            description: `فاتورة: ${service}`,
-            time: newRecord.time,
-            ownerUid: currentUserUid
-        };
+        // أضف في Firestore — onSnapshot سيحدّث الواجهة تلقائياً
+        recordsBaseCol.add(newRecord).then(() => {
+            if (currentUserUid) {
+                const docRef = db.collection('userMeta').doc(currentUserUid).collection('meta').doc('inwiAccount');
+                db.runTransaction(transaction => {
+                    return transaction.get(docRef).then(doc => {
+                        let newBalance = -amount;
+                        if (doc.exists) {
+                            newBalance = (doc.data().balance || 0) - amount;
+                        }
+                        transaction.set(docRef, { balance: newBalance }, { merge: true });
+                    });
+                }).catch(err => console.error('Failed to deduct from inwi balance', err));
+            }
 
-        const batch = db.batch();
-        batch.set(recordsBaseCol.doc(), newRecord);
-        batch.set(fundBaseCol.doc(), fundTransaction);
-
-        batch.commit().then(() => {
-             if (!savedServices.includes(service)) {
+            // تحديث قائمة الخدمات المخزنة في المستند
+            if (!savedServices.includes(service)) {
                 savedServices.push(service);
                 savedServices.sort();
                 if (currentUserUid) {
-                    db.collection('userMeta').doc(currentUserUid).collection('meta').doc('savedServices').set({ list: savedServices });
+                    db.collection('userMeta').doc(currentUserUid).collection('meta').doc('savedServices').set({ list: savedServices })
+                        .catch(e => console.warn('Failed to update services doc:', e));
                 }
             }
+            // تنظيف الحقول فوراً
             elements.service.value = '';
             elements.amount.value = '';
             elements.check.checked = false;
+
+            // توجيه الفلتر أو إعادة العرض سيتم عبر onSnapshot؛ لكن نحدّث الفلتر محلياً
+            if (currentFilter !== 'all') {
+                if (isChecked) setFilter('ready');
+                else setFilter('pending');
+            } else {
+                // عرض فوري من localStorage أو موجود حالياً
+                renderRecords();
+            }
         }).catch(err => {
-            console.error('Failed to add record and fund transaction:', err);
-            alert('خطأ في مزامنة السجل مع السحابة.');
-        });
-    }
-
-    window.addFundPrompt = function() {
-        requireDeletePin().then(isConfirmed => {
-            if (!isConfirmed) return;
-
-            const amountStr = prompt("أدخل المبلغ المراد إضافته للخزنة:");
-            if (amountStr === null) return; // cancelled
-            const amount = parseFloat(amountStr);
-            if (isNaN(amount) || amount <= 0) {
-                alert("المرجو إدخال مبلغ صحيح.");
-                return;
-            }
-            const newFundTx = {
-                id: Date.now(),
-                type: 'addition',
-                amount: amount,
-                date: new Date().toISOString().split('T')[0],
-                description: 'إضافة يدوية',
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                ownerUid: currentUserUid
-            };
-            fundBaseCol.add(newFundTx).catch(err => {
-                console.error("Fund add error:", err);
-                alert('فشلت العملية. تحقق من اتصالك بالإنترنت.');
-            });
-        }).catch(err => {
-            if (err && err.message === 'PIN_NOT_SET') {
-                alert('المرجو تعيين PIN للعمليات من الإعدادات');
-            }
-        });
-    }
-
-    window.addSafePrompt = function(type) {
-        requireDeletePin().then(isConfirmed => {
-            if (!isConfirmed) return;
-
-            const actionText = type === 'addition' ? 'إضافته' : 'خصمه';
-            const amountStr = prompt(`أدخل المبلغ المراد ${actionText} من الصندوق:`);
-            if (amountStr === null) return; // cancelled
-            const amount = parseFloat(amountStr);
-            if (isNaN(amount) || amount <= 0) {
-                alert("المرجو إدخال مبلغ صحيح.");
-                return;
-            }
-            const description = type === 'addition' ? 'إضافة يدوية للصندوق' : 'خصم يدوي من الصندوق';
-            const newSafeTx = { id: Date.now(), type: type, amount: amount, date: new Date().toISOString().split('T')[0], description: description, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), ownerUid: currentUserUid };
-            safeBaseCol.add(newSafeTx).catch(err => {
-                console.error("Safe add error:", err);
-                alert('فشلت العملية. تحقق من اتصالك بالإنترنت.');
-            });
-        }).catch(err => {
-            if (err && err.message === 'PIN_NOT_SET') {
-                alert('المرجو تعيين PIN للعمليات من الإعدادات');
-            }
+            console.error('Failed to add record to Firestore:', err);
+            alert('خطأ في مزامنة السجل مع السحابة. حاول لاحقاً.');
         });
     }
 
@@ -1870,75 +2015,43 @@
             , ownerUid: currentUserUid
         };
 
-        const fundTransaction = {
-            id: newPayment.id + 1,
-            type: 'addition',
-            amount: amount,
-            date: date,
-            description: `عملية دفع: ${typeName}`,
-            time: newPayment.time,
-            ownerUid: currentUserUid
-        };
+        paymentsBaseCol.add(newPayment).then(() => {
+            if (currentUserUid) {
+                const docRefInwi = db.collection('userMeta').doc(currentUserUid).collection('meta').doc('inwiAccount');
+                const docRefBox = db.collection('userMeta').doc(currentUserUid).collection('meta').doc('boxAccount');
+                
+                db.runTransaction(transaction => {
+                    return Promise.all([transaction.get(docRefInwi), transaction.get(docRefBox)]).then(([docInwi, docBox]) => {
+                        let newInwi = amount;
+                        if (docInwi.exists) {
+                            newInwi = (docInwi.data().balance || 0) + amount;
+                        }
+                        transaction.set(docRefInwi, { balance: newInwi }, { merge: true });
 
-        const safeTransaction = {
-            id: newPayment.id + 2,
-            type: 'deduction',
-            amount: amount,
-            date: date,
-            description: `عملية دفع: ${typeName}`,
-            time: newPayment.time,
-            ownerUid: currentUserUid
-        };
+                        let newBox = -amount;
+                        if (docBox.exists) {
+                            newBox = (docBox.data().balance || 0) - amount;
+                        }
+                        transaction.set(docRefBox, { balance: newBox }, { merge: true });
+                    });
+                }).catch(err => console.error('Failed to update balances on addPayment', err));
+            }
 
-        const batch = db.batch();
-        batch.set(paymentsBaseCol.doc(), newPayment);
-        batch.set(fundBaseCol.doc(), fundTransaction);
-        batch.set(safeBaseCol.doc(), safeTransaction);
-
-        batch.commit().then(() => {
             elements.paymentType.value = '';
             elements.paymentAmount.value = '';
             renderRecords();
         }).catch(err => {
-            console.error('Failed to add payment and related transactions:', err);
+            console.error('Failed to add payment to Firestore:', err);
             alert('خطأ في مزامنة العملية مع السحابة. حاول لاحقاً.');
         });
     }
 
     function deletePayment(id) {
+        const docId = findPaymentDocIdById(id);
+        if (!docId) return;
+
         requireDeletePin().then(() => {
-            const paymentToDelete = findPaymentById(id);
-            if (!paymentToDelete || !paymentToDelete.docId) return;
-
-            const batch = db.batch();
-
-            // حذف سجل الدفع
-            batch.delete(paymentsBaseCol.doc(paymentToDelete.docId));
-
-            // إضافة عمليات معاكسة للخزنة والصندوق
-            const reverseFundTx = {
-                id: Date.now(),
-                type: 'deduction', // عكس الإضافة
-                amount: paymentToDelete.amount,
-                date: paymentToDelete.date,
-                description: `إلغاء دفع: ${getPaymentTypeNameFromPayment(paymentToDelete)}`,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                ownerUid: currentUserUid
-            };
-            batch.set(fundBaseCol.doc(), reverseFundTx);
-
-            const reverseSafeTx = {
-                id: Date.now() + 1,
-                type: 'addition', // عكس الخصم
-                amount: paymentToDelete.amount,
-                date: paymentToDelete.date,
-                description: `إلغاء دفع: ${getPaymentTypeNameFromPayment(paymentToDelete)}`,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                ownerUid: currentUserUid
-            };
-            batch.set(safeBaseCol.doc(), reverseSafeTx);
-
-            return batch.commit();
+            return paymentsBaseCol.doc(docId).delete();
         }).catch(err => {
             if (err && err.message === 'PIN_NOT_SET') {
                 alert('المرجو تعيين PIN للحذف من الإعدادات');
@@ -1965,25 +2078,20 @@
             }
             const docId = findDocIdById(id);
             if (!docId) return;
-
-            const safeTransaction = {
-                id: Date.now(),
-                type: 'addition',
-                amount: record.amount,
-                date: elements.date.value, // use current date for payment
-                description: `استخلاص: ${record.service}`,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                ownerUid: currentUserUid
-            };
-
-            const batch = db.batch();
-            batch.update(recordsBaseCol.doc(docId), { isPaid: true });
-            batch.set(safeBaseCol.doc(), safeTransaction);
-
-            batch.commit().catch(err => {
-                console.error('Failed to mark as paid and update safe:', err);
-                alert('خطأ في مزامنة عملية الاستخلاص.');
-            });
+            recordsBaseCol.doc(docId).update({ isPaid: true }).then(() => {
+                if (currentUserUid) {
+                    const docRefBox = db.collection('userMeta').doc(currentUserUid).collection('meta').doc('boxAccount');
+                    db.runTransaction(transaction => {
+                        return transaction.get(docRefBox).then(doc => {
+                            let newBox = record.amount;
+                            if (doc.exists) {
+                                newBox = (doc.data().balance || 0) + record.amount;
+                            }
+                            transaction.set(docRefBox, { balance: newBox }, { merge: true });
+                        });
+                    }).catch(err => console.error('Failed to add to box balance', err));
+                }
+            }).catch(e => console.warn('markAsPaid failed:', e));
         }
     }
 
@@ -2011,19 +2119,10 @@
     function renderRecords() {
         elements.list.innerHTML = '';
         const selectedDate = elements.date.value;
-        if (elements.safeDate.value !== selectedDate) {
-            elements.safeDate.value = selectedDate;
-        }
-        if (elements.fundDate.value !== selectedDate) {
-            elements.fundDate.value = selectedDate;
-        }
         if (elements.paymentDate.value !== selectedDate) {
             elements.paymentDate.value = selectedDate;
         }
         
-        const safeBalance = safeTransactions.reduce((bal, tx) => bal + (tx.type === 'addition' ? tx.amount : -tx.amount), 0);
-        const fundBalance = fundTransactions.reduce((bal, tx) => bal + (tx.type === 'addition' ? tx.amount : -tx.amount), 0);
-
         // 1. تحديد مجموعات البيانات للحساب
         
         // بيانات اليوم فقط (للأزرق والأحمر)
@@ -2059,14 +2158,6 @@
 
 
         // 3. تحديث واجهة الكروت
-
-        // الصندوق
-        elements.valSafe.textContent = safeBalance.toFixed(2);
-        elements.valSafePage.textContent = safeBalance.toFixed(2);
-
-        // الخزنة
-        elements.valFund.textContent = fundBalance.toFixed(2);
-        elements.valFundPage.textContent = fundBalance.toFixed(2);
         
         // الأزرق (اليوم)
         elements.valAll.textContent = sumAllToday.toFixed(2);
@@ -2087,55 +2178,10 @@
         elements.valPayment.textContent = sumPaymentToday.toFixed(2);
         elements.countPayment.textContent = todayPayments.length + ' عملية';
 
-        elements.valPaymentPage.textContent = sumPaymentToday.toFixed(2);
-
-        elements.safeHistory.innerHTML = '';
-        const safeHistoryToRender = [...safeTransactions.filter(tx => tx.date === selectedDate)].sort((a, b) => b.id - a.id);
-        safeHistoryToRender.forEach(tx => {
-            const item = document.createElement('div');
-            item.className = 'payment-history-item';
-            const isAddition = tx.type === 'addition';
-            const amountColor = isAddition ? 'var(--green)' : 'var(--red)';
-            const amountSign = isAddition ? '+' : '-';
-            item.innerHTML = `
-                <div class="left">
-                    <strong>${tx.description}</strong>
-                    <span>${tx.date} <span class="time-tag">${tx.time || ''}</span></span>
-                </div>
-                <div class="amt" style="color: ${amountColor};">${amountSign}${Number(tx.amount || 0).toFixed(2)}</div>
-            `;
-            elements.safeHistory.appendChild(item);
-        });
-
-        if (safeHistoryToRender.length === 0) {
-            elements.safeHistory.innerHTML = '<div style="text-align:center; padding:10px; color:#999;">لا توجد عمليات لهذا اليوم</div>';
-        }
-
-
-        elements.fundHistory.innerHTML = '';
-        const fundHistoryToRender = [...fundTransactions.filter(tx => tx.date === selectedDate)].sort((a, b) => b.id - a.id);
-        fundHistoryToRender.forEach(tx => {
-            const item = document.createElement('div');
-            item.className = 'payment-history-item';
-            const isAddition = tx.type === 'addition';
-            const amountColor = isAddition ? 'var(--green)' : 'var(--red)';
-            const amountSign = isAddition ? '+' : '-';
-            item.innerHTML = `
-                <div class="left">
-                    <strong>${tx.description}</strong>
-                    <span>${tx.date} <span class="time-tag">${tx.time || ''}</span></span>
-                </div>
-                <div class="amt" style="color: ${amountColor};">${amountSign}${Number(tx.amount || 0).toFixed(2)}</div>
-            `;
-            elements.fundHistory.appendChild(item);
-        });
-
-        if (fundHistoryToRender.length === 0) {
-            elements.fundHistory.innerHTML = '<div style="text-align:center; padding:10px; color:#999;">لا توجد عمليات لهذا اليوم</div>';
-        }
+        elements.valPaymentPage.textContent = sumPaymentsGlobal.toFixed(2);
 
         elements.paymentHistory.innerHTML = '';
-        const paymentHistoryToRender = [...todayPayments].sort((a, b) => b.id - a.id);
+        const paymentHistoryToRender = [...payments].sort((a, b) => b.id - a.id);
         paymentHistoryToRender.forEach(p => {
             const item = document.createElement('div');
             item.className = 'payment-history-item';
@@ -2157,20 +2203,41 @@
             elements.paymentHistory.innerHTML = '<div style="text-align:center; padding:10px; color:#999;">لا توجد بيانات</div>';
         }
 
+        // 3b. سجل inwi (الاستخلاصات والإضافات معاً)
+        if (elements.inwiHistoryList) {
+            elements.inwiHistoryList.innerHTML = '';
+            const inwiHistoryData = [
+                ...inwiAdditions.map(a => ({ id: a.id, type: 'شحن inwi', desc: 'إضافة يدوية', amount: a.amount, date: a.date, time: a.time }))
+            ].sort((a, b) => b.id - a.id);
+
+            inwiHistoryData.forEach(op => {
+                const item = document.createElement('div');
+                item.className = 'payment-history-item';
+                item.innerHTML = `
+                    <div class="left">
+                        <strong>${op.desc} <span style="font-size: 0.8em; color: ${op.amount > 0 ? 'var(--green)' : 'var(--red)'};">(${op.type})</span></strong>
+                        <span>${op.date} <span class="time-tag">${op.time || ''}</span></span>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <div class="amt" style="color: ${op.amount > 0 ? 'var(--green)' : 'var(--red)'}; direction: ltr;">
+                            ${op.amount > 0 ? '+' : ''}${op.amount.toFixed(2)}
+                        </div>
+                    </div>
+                `;
+                elements.inwiHistoryList.appendChild(item);
+            });
+
+            if (inwiHistoryData.length === 0) {
+                elements.inwiHistoryList.innerHTML = '<div style="text-align:center; padding:10px; color:#999;">لا توجد بيانات</div>';
+            }
+        }
+
 
         // 4. تحديد القائمة المعروضة في الأسفل
         let listToRender = [];
         
         if (currentFilter === 'all') {
-            const normalizedPayments = todayPayments.map(p => ({
-                id: p.id,
-                kind: 'payment',
-                service: getPaymentTypeNameFromPayment(p),
-                amount: p.amount,
-                date: p.date,
-                time: p.time
-            }));
-            listToRender = [...todayRecords, ...normalizedPayments];
+            listToRender = [...todayRecords];
         } else if (currentFilter === 'paid') {
             listToRender = paidToday; // عرض مدفوعات اليوم
         } else if (currentFilter === 'pending') {
